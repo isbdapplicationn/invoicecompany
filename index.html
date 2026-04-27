@@ -1,0 +1,2195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InvoicePro | Premium Invoice Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #ec4899;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            
+            /* Light Theme */
+            --bg-primary: #fafbff;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.04);
+            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.08), 0 8px 10px -6px rgba(0,0,0,0.04);
+            --shadow-glass: 0 8px 32px rgba(99, 102, 241, 0.12);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #111827;
+            --bg-tertiary: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #64748b;
+            --border-color: #1e293b;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.4), 0 2px 4px -2px rgba(0,0,0,0.3);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.5), 0 4px 6px -4px rgba(0,0,0,0.4);
+            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.5), 0 8px 10px -6px rgba(0,0,0,0.4);
+            --shadow-glass: 0 8px 32px rgba(99, 102, 241, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        /* Animated Background */
+        .bg-mesh {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .mesh-gradient {
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            top: -25%;
+            left: -25%;
+            background: 
+                radial-gradient(at 40% 20%, hsla(228, 90%, 70%, 0.15) 0px, transparent 50%),
+                radial-gradient(at 80% 0%, hsla(329, 85%, 65%, 0.12) 0px, transparent 50%),
+                radial-gradient(at 0% 50%, hsla(189, 95%, 55%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 80% 50%, hsla(41, 95%, 60%, 0.08) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, hsla(267, 90%, 70%, 0.1) 0px, transparent 50%);
+            animation: meshFloat 30s ease-in-out infinite alternate;
+        }
+
+        @keyframes meshFloat {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(5deg); }
+            66% { transform: translate(-20px, 20px) rotate(-3deg); }
+            100% { transform: translate(15px, 10px) rotate(2deg); }
+        }
+
+        [data-theme="dark"] .mesh-gradient {
+            opacity: 0.5;
+        }
+
+        /* Grid Pattern Overlay */
+        .grid-pattern {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background-image: 
+                linear-gradient(var(--border-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
+            background-size: 60px 60px;
+            opacity: 0.3;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(60px, 60px); }
+        }
+
+        /* Header */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            background: rgba(255, 255, 255, 0.72);
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.4s ease;
+        }
+
+        [data-theme="dark"] .header {
+            background: rgba(17, 24, 39, 0.82);
+        }
+
+        .header-inner {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo-icon::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.3) 50%, transparent 60%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .logo-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .theme-toggle {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(15deg) scale(1.05);
+            box-shadow: var(--shadow-md);
+        }
+
+        .nav-pills {
+            display: flex;
+            gap: 0.35rem;
+            background: var(--bg-tertiary);
+            padding: 0.35rem;
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+        }
+
+        .nav-pill {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 11px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .nav-pill:hover {
+            color: var(--primary);
+            background: rgba(99, 102, 241, 0.08);
+        }
+
+        .nav-pill.active {
+            background: var(--bg-secondary);
+            color: var(--primary);
+            box-shadow: var(--shadow-md);
+            font-weight: 600;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Section */
+        .section {
+            display: none;
+            animation: fadeSlideIn 0.5s ease-out;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeSlideIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.25rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--text-primary), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 1.75rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--card-accent, var(--primary)), var(--card-accent-alt, var(--secondary)));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-xl);
+            border-color: transparent;
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-card.accent-blue { --card-accent: #6366f1; --card-accent-alt: #818cf8; }
+        .stat-card.accent-green { --card-accent: #10b981; --card-accent-alt: #34d399; }
+        .stat-card.accent-purple { --card-accent: #8b5cf6; --card-accent-alt: #a78bfa; }
+        .stat-card.accent-orange { --card-accent: #f59e0b; --card-accent-alt: #fbbf24; }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.25rem;
+        }
+
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover .stat-icon {
+            transform: scale(1.1) rotate(-5deg);
+        }
+
+        .stat-icon.blue { background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(99,102,241,0.05)); color: #6366f1; }
+        .stat-icon.green { background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.05)); color: #10b981; }
+        .stat-icon.purple { background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(139,92,246,0.05)); color: #8b5cf6; }
+        .stat-icon.orange { background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.05)); color: #f59e0b; }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .stat-trend.up {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .stat-trend.down {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+        }
+
+        /* Card Component */
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-xl);
+        }
+
+        .card-header {
+            padding: 1.75rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, var(--bg-tertiary), transparent);
+        }
+
+        .card-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        /* Form Styles */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.625rem;
+        }
+
+        .form-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .form-label .icon {
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+
+        .form-input {
+            padding: 0.9rem 1.125rem;
+            border: 2px solid var(--border-color);
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 1rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--bg-secondary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1), var(--shadow-sm);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 90px;
+            line-height: 1.6;
+        }
+
+        /* Items Section */
+        .items-section {
+            margin-top: 2rem;
+        }
+
+        .items-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+        }
+
+        .btn {
+            padding: 0.85rem 1.75rem;
+            border: none;
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.625rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .btn:active::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #d97706);
+            color: white;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.5);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            color: white;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-ghost {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+
+        .btn-ghost:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        /* Items Table */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 18px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 720px;
+        }
+
+        .items-table th {
+            background: var(--bg-tertiary);
+            padding: 1.125rem 1.25rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .items-table td {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .items-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .items-table tr {
+            transition: background 0.2s ease;
+        }
+
+        .items-table tbody tr:hover {
+            background: rgba(99, 102, 241, 0.04);
+        }
+
+        .table-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.9375rem;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .table-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .btn-remove-row {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(239, 68, 68, 0.08);
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-remove-row:hover {
+            background: var(--danger);
+            color: white;
+            transform: rotate(90deg) scale(1.1);
+        }
+
+        /* Summary Box */
+        .summary-box {
+            margin-top: 2rem;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(236, 72, 153, 0.05));
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 2rem;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .summary-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .summary-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .summary-total {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+        }
+
+        .summary-total .summary-label,
+        .summary-total .summary-value {
+            color: white;
+        }
+
+        .summary-total .summary-value {
+            font-size: 1.75rem;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        /* Invoices Grid */
+        .invoices-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .invoice-card {
+            background: var(--bg-secondary);
+            border-radius: 22px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .invoice-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .invoice-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+            border-color: transparent;
+        }
+
+        .invoice-card-header {
+            padding: 1.5rem 1.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            background: linear-gradient(to bottom, var(--bg-tertiary), transparent);
+        }
+
+        .invoice-id {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .invoice-date {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .invoice-status {
+            padding: 0.4rem 0.875rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .status-paid {
+            background: rgba(16, 185, 129, 0.12);
+            color: #10b981;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.12);
+            color: #f59e0b;
+        }
+
+        .status-overdue {
+            background: rgba(239, 68, 68, 0.12);
+            color: #ef4444;
+        }
+
+        .invoice-card-body {
+            padding: 1.5rem 1.75rem;
+        }
+
+        .client-info {
+            margin-bottom: 1.25rem;
+        }
+
+        .client-name {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 0.375rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .client-detail {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .amount-display {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--success);
+            margin-bottom: 1.25rem;
+        }
+
+        .invoice-actions {
+            display: flex;
+            gap: 0.625rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 0.625rem 1.125rem;
+            font-size: 0.8125rem;
+            border-radius: 10px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 5rem 2rem;
+        }
+
+        .empty-icon {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.4;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .empty-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .empty-desc {
+            color: var(--text-secondary);
+            max-width: 400px;
+            margin: 0 auto 2rem;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 2rem;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border-radius: 28px;
+            width: 100%;
+            max-width: 960px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes modalSlideIn {
+            from { 
+                opacity: 0;
+                transform: scale(0.9) translateY(30px);
+            }
+            to { 
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 1.75rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(to bottom, var(--bg-tertiary), transparent);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .modal-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .modal-close {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+            cursor: pointer;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+        }
+
+        .modal-close:hover {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        /* Invoice Preview Template */
+        .invoice-preview {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .preview-header {
+            background: linear-gradient(135deg, #1e1b4b, #312e81);
+            color: white;
+            padding: 3rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .preview-logo h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .preview-meta p {
+            opacity: 0.85;
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .preview-parties {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            padding: 2.5rem 3rem;
+            background: #f8fafc;
+        }
+
+        .party-block h4 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #64748b;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .party-block .name {
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+
+        .party-block p {
+            font-size: 0.9rem;
+            color: #475569;
+            line-height: 1.6;
+        }
+
+        .preview-table-wrap {
+            overflow-x: auto;
+        }
+
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .preview-table th {
+            background: #1e1b4b;
+            color: white;
+            padding: 1.25rem 1.5rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .preview-table td {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.95rem;
+        }
+
+        .preview-table tbody tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .preview-footer {
+            padding: 2.5rem 3rem;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 3rem;
+            align-items: end;
+        }
+
+        .preview-notes h4 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #64748b;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .preview-totals {
+            min-width: 320px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px dashed #cbd5e1;
+            font-size: 0.95rem;
+        }
+
+        .total-row.grand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e1b4b;
+            border-top: 3px solid #1e1b4b;
+            border-bottom: none;
+            padding-top: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Toast Container */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .toast {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 14px;
+            box-shadow: var(--shadow-xl);
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            min-width: 340px;
+            border-left: 4px solid var(--success);
+            animation: toastSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        .toast.warning {
+            border-left-color: var(--warning);
+        }
+
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        .toast-icon {
+            font-size: 1.5rem;
+        }
+
+        .toast-message {
+            flex: 1;
+            font-weight: 500;
+            font-size: 0.9375rem;
+        }
+
+        /* Search & Filter Bar */
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 0.875rem 1.25rem;
+            border: 2px solid var(--border-color);
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 0.9375rem;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .filter-select {
+            padding: 0.875rem 2.5rem 0.875rem 1.25rem;
+            border: 2px solid var(--border-color);
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 0.9375rem;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.875rem center;
+            transition: all 0.3s ease;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-container {
+                padding: 1.5rem;
+            }
+
+            .header-inner {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-pills {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .invoices-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 1.75rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .preview-header,
+            .preview-parties,
+            .preview-footer {
+                grid-template-columns: 1fr;
+            }
+
+            .action-bar {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .toast-container {
+                left: 1rem;
+                right: 1rem;
+            }
+
+            .toast {
+                min-width: auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-pill span:not(:first-child) {
+                display: none;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            .invoice-preview,
+            .invoice-preview * {
+                visibility: visible;
+            }
+
+            .invoice-preview {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                box-shadow: none;
+                border: none;
+                border-radius: 0;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--text-muted);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        /* Selection Color */
+        ::selection {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <!-- Background -->
+    <div class="bg-mesh">
+        <div class="mesh-gradient"></div>
+        <div class="grid-pattern"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <div class="logo">
+                <div class="logo-icon">📄</div>
+                <span class="logo-text">InvoicePro</span>
+            </div>
+
+            <nav class="nav-pills">
+                <button class="nav-pill active" data-tab="create">
+                    <span>✨</span> Create New
+                </button>
+                <button class="nav-pill" data-tab="saved">
+                    <span>📁</span> All Invoices
+                </button>
+            </nav>
+
+            <div class="header-actions">
+                <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Theme">
+                    🌙
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+
+        <!-- Create Invoice Section -->
+        <section id="create" class="section active">
+            <div class="page-header">
+                <h1 class="page-title">Create New Invoice</h1>
+                <p class="page-subtitle">Generate professional invoices in seconds</p>
+            </div>
+
+            <!-- Business & Client Info -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <div class="card-header">
+                    <h2 class="card-title">🏢 Business & Client Information</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label"><span class="icon">🏪</span> Your Business Name</label>
+                            <input type="text" id="businessName" class="form-input" placeholder="Enter your business name" value="Acme Corporation">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><span class="icon">📧</span> Email Address</label>
+                            <input type="email" id="businessEmail" class="form-input" placeholder="email@example.com" value="billing@acmecorp.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><span class="icon">📱</span> Phone Number</label>
+                            <input type="tel" id="businessPhone" class="form-input" placeholder="+1 (555) 000-0000" value="+1 (555) 123-4567">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><span class="icon">📍</span> Address</label>
+                            <input type="text" id="businessAddress" class="form-input" placeholder="Your business address" value="123 Business Ave, Suite 100, New York, NY 10001">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><span class="icon">👤</span> Client Name</label>
+                            <input type="text" id="clientName" class="form-input" placeholder="Client's name" value="John Smith Enterprises">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><span class="icon">🏠</span> Client Address</label>
+                            <input type="text" id="clientAddress" class="form-input" placeholder="Client's address" value="456 Client St, Los Angeles, CA 90001">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Invoice Details -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📋 Invoice Details</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label"><span class="icon">#️⃣</span> Invoice Number</label>
+                            <input type="text" id="invoiceNumber" class="form-input" placeholder="INV-0001" value="INV-2024-001">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><span class="icon">📅</span> Invoice Date</label>
+                            <input type="date" id="invoiceDate" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><span class="icon">⏰</span> Due Date</label>
+                            <input type="date" id="dueDate" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><span class="icon">💰</span> Tax Rate (%)</label>
+                            <input type="number" id="taxRate" class="form-input" placeholder="0" value="10" min="0" max="100">
+                        </div>
+                    </div>
+
+                    <!-- Items -->
+                    <div class="items-section">
+                        <div class="items-header">
+                            <h3 class="section-title">📦 Line Items</h3>
+                            <button class="btn btn-success" onclick="addItem()">
+                                <span>➕</span> Add Item
+                            </button>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="items-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 38%">Description</th>
+                                        <th style="width: 15%">Qty</th>
+                                        <th style="width: 20%">Unit Price</th>
+                                        <th style="width: 20%">Amount</th>
+                                        <th style="width: 7%"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="itemsBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Summary -->
+                    <div class="summary-box">
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <span class="summary-label">Subtotal</span>
+                                <span class="summary-value" id="subtotal">$0.00</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Tax (<span id="taxRateDisplay">10</span>%)</span>
+                                <span class="summary-value" id="taxAmount">$0.00</span>
+                            </div>
+                            <div class="summary-item summary-total">
+                                <span class="summary-label">Grand Total</span>
+                                <span class="summary-value" id="grandTotal">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="form-group" style="margin-top: 1.5rem;">
+                        <label class="form-label"><span class="icon">📝</span> Notes / Terms</label>
+                        <textarea id="notes" class="form-input" placeholder="Payment terms, thank you message...">Thank you for your business! Payment is due within 30 days.</textarea>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="action-bar">
+                        <button class="btn btn-primary" onclick="saveInvoice()">
+                            <span>💾</span> Save Invoice
+                        </button>
+                        <button class="btn btn-success" onclick="showPreview()">
+                            <span>👁️</span> Preview
+                        </button>
+                        <button class="btn btn-warning" onclick="printInvoice()">
+                            <span>🖨️</span> Print / PDF
+                        </button>
+                        <button class="btn btn-outline" onclick="clearForm()">
+                            <span>🗑️</span> Clear Form
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Saved Invoices Section -->
+        <section id="saved" class="section">
+            <div class="page-header">
+                <h1 class="page-title">All Invoices</h1>
+                <p class="page-subtitle">Manage your saved invoices</p>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card accent-blue">
+                    <div class="stat-header">
+                        <div class="stat-icon blue">📄</div>
+                        <div class="stat-trend up">↑ 12%</div>
+                    </div>
+                    <div class="stat-label">Total Invoices</div>
+                    <div class="stat-value" id="totalInvoices">0</div>
+                </div>
+                <div class="stat-card accent-green">
+                    <div class="stat-header">
+                        <div class="stat-icon green">💰</div>
+                        <div class="stat-trend up">↑ 8%</div>
+                    </div>
+                    <div class="stat-label">Total Revenue</div>
+                    <div class="stat-value" id="totalSales">$0</div>
+                </div>
+                <div class="stat-card accent-purple">
+                    <div class="stat-header">
+                        <div class="stat-icon purple">📊</div>
+                        <div class="stat-trend up">↑ 5%</div>
+                    </div>
+                    <div class="stat-label">Average Amount</div>
+                    <div class="stat-value" id="avgAmount">$0</div>
+                </div>
+                <div class="stat-card accent-orange">
+                    <div class="stat-header">
+                        <div class="stat-icon orange">🗓️</div>
+                        <div class="stat-trend up">↑ 3</div>
+                    </div>
+                    <div class="stat-label">This Month</div>
+                    <div class="stat-value" id="monthInvoices">0</div>
+                </div>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search invoices by client name or number..." oninput="filterInvoices()">
+                <select class="filter-select" id="statusFilter" onchange="filterInvoices()">
+                    <option value="all">All Status</option>
+                    <option value="paid">Paid</option>
+                    <option value="pending">Pending</option>
+                    <option value="overdue">Overdue</option>
+                </select>
+            </div>
+
+            <!-- Invoices Grid -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="invoices-grid" id="invoicesGrid"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Preview Modal -->
+    <div class="modal-overlay" id="previewModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">📄 Invoice Preview</h2>
+                <button class="modal-close" onclick="closePreview()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div id="invoicePreviewContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // State
+        let items = [];
+        let itemIdCounter = 0;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initDates();
+            addItem();
+            addItem();
+            loadSavedInvoices();
+            setupNavigation();
+            setupKeyboardShortcuts();
+            calculateTotals();
+        });
+
+        // Initialize dates
+        function initDates() {
+            const today = new Date();
+            const due = new Date(today);
+            due.setDate(due.getDate() + 30);
+
+            document.getElementById('invoiceDate').value = today.toISOString().split('T')[0];
+            document.getElementById('dueDate').value = due.toISOString().split('T')[0];
+        }
+
+        // Navigation setup
+        function setupNavigation() {
+            document.querySelectorAll('.nav-pill').forEach(pill => {
+                pill.addEventListener('click', () => switchTab(pill.dataset.tab));
+            });
+        }
+
+        // Switch tabs
+        function switchTab(tabId) {
+            document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+
+            document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+
+            if (tabId === 'saved') loadSavedInvoices();
+        }
+
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            body.setAttribute('data-theme', newTheme);
+            
+            const themeBtn = document.querySelector('.theme-toggle');
+            themeBtn.textContent = newTheme === 'light' ? '🌙' : '☀️';
+            
+            localStorage.setItem('theme', newTheme);
+            showToast(`Switched to ${newTheme} mode`, 'success');
+        }
+
+        // Load saved theme
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            document.querySelector('.theme-toggle').textContent = savedTheme === 'light' ? '🌙' : '☀️';
+        })();
+
+        // Add item row
+        function addItem() {
+            const tbody = document.getElementById('itemsBody');
+            const id = itemIdCounter++;
+            
+            const defaults = [
+                { desc: 'Website Development Services', qty: 1, price: 3500 },
+                { desc: 'UI/UX Design Consultation', qty: 10, price: 150 },
+                { desc: '', qty: 1, price: 0 }
+            ];
+
+            const tr = document.createElement('tr');
+            tr.id = `item-${id}`;
+            tr.innerHTML = `
+                <td><input type="text" class="table-input item-desc" placeholder="Item description" value="${defaults[Math.min(id, 2)].desc}" onchange="calculateTotals()"></td>
+                <td><input type="number" class="table-input item-qty" placeholder="0" min="1" value="${defaults[Math.min(id, 2)].qty}" onchange="calculateTotals()"></td>
+                <td><input type="number" class="table-input item-price" placeholder="0.00" min="0" step="0.01" value="${defaults[Math.min(id, 2)].price}" onchange="calculateTotals()"></td>
+                <td class="item-total" style="font-weight: 600; color: var(--primary);">$${(defaults[Math.min(id, 2)].qty * defaults[Math.min(id, 2)].price).toFixed(2)}</td>
+                <td><button class="btn-remove-row" onclick="removeItem(${id})" title="Remove item">✕</button></td>
+            `;
+            
+            tbody.appendChild(tr);
+            items.push({ id });
+            calculateTotals();
+
+            // Animate new row
+            tr.style.animation = 'fadeSlideIn 0.3s ease-out';
+        }
+
+        // Remove item
+        function removeItem(id) {
+            if (items.length <= 1) {
+                showToast('At least one item is required!', 'warning');
+                return;
+            }
+
+            const row = document.getElementById(`item-${id}`);
+            row.style.transition = 'all 0.3s ease';
+            row.style.opacity = '0';
+            row.style.transform = 'translateX(-20px)';
+            
+            setTimeout(() => {
+                row.remove();
+                items = items.filter(i => i.id !== id);
+                calculateTotals();
+            }, 300);
+        }
+
+        // Calculate totals
+        function calculateTotals() {
+            let subtotal = 0;
+            const rows = document.querySelectorAll('#itemsBody tr');
+
+            rows.forEach(row => {
+                const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+                const price = parseFloat(row.querySelector('.item-price').value) || 0;
+                const total = qty * price;
+                
+                row.querySelector('.item-total').textContent = `$${total.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+                subtotal += total;
+            });
+
+            const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+            const taxAmount = subtotal * (taxRate / 100);
+            const grandTotal = subtotal + taxAmount;
+
+            document.getElementById('subtotal').textContent = `$${subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+            document.getElementById('taxRateDisplay').textContent = taxRate;
+            document.getElementById('taxAmount').textContent = `$${taxAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+            document.getElementById('grandTotal').textContent = `$${grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+        }
+
+        // Tax rate change listener
+        document.getElementById('taxRate')?.addEventListener('change', calculateTotals);
+
+        // Get form data
+        function getFormData() {
+            const itemsData = [];
+            document.querySelectorAll('#itemsBody tr').forEach(row => {
+                itemsData.push({
+                    description: row.querySelector('.item-desc').value,
+                    quantity: parseFloat(row.querySelector('.item-qty').value) || 0,
+                    price: parseFloat(row.querySelector('.item-price').value) || 0
+                });
+            });
+
+            return {
+                businessName: document.getElementById('businessName').value,
+                businessEmail: document.getElementById('businessEmail').value,
+                businessPhone: document.getElementById('businessPhone').value,
+                businessAddress: document.getElementById('businessAddress').value,
+                clientName: document.getElementById('clientName').value,
+                clientAddress: document.getElementById('clientAddress').value,
+                invoiceNumber: document.getElementById('invoiceNumber').value,
+                invoiceDate: document.getElementById('invoiceDate').value,
+                dueDate: document.getElementById('dueDate').value,
+                taxRate: parseFloat(document.getElementById('taxRate').value) || 0,
+                notes: document.getElementById('notes').value,
+                items: itemsData
+            };
+        }
+
+        // Validate form
+        function validateForm(data) {
+            if (!data.clientName.trim()) {
+                showToast('Please enter client name', 'error');
+                return false;
+            }
+            if (!data.invoiceNumber.trim()) {
+                showToast('Please enter invoice number', 'error');
+                return false;
+            }
+            if (data.items.length === 0 || data.items.every(i => !i.description)) {
+                showToast('Please add at least one item', 'error');
+                return false;
+            }
+            return true;
+        }
+
+        // Save invoice
+        function saveInvoice() {
+            const data = getFormData();
+            if (!validateForm(data)) return;
+
+            const invoices = JSON.parse(localStorage.getItem('invoices_pro') || '[]');
+            data.id = Date.now().toString();
+            data.createdAt = new Date().toISOString();
+            data.status = 'pending';
+            invoices.unshift(data);
+            localStorage.setItem('invoices_pro', JSON.stringify(invoices));
+
+            showToast('✅ Invoice saved successfully!', 'success');
+            clearForm();
+        }
+
+        // Clear form
+        function clearForm() {
+            document.getElementById('clientName').value = '';
+            document.getElementById('clientAddress').value = '';
+            document.getElementById('invoiceNumber').value = `INV-${new Date().getFullYear()}-${String(Date.now()).slice(-4)}`;
+            document.getElementById('notes').value = '';
+
+            const tbody = document.getElementById('itemsBody');
+            tbody.innerHTML = '';
+            items = [];
+            itemIdCounter = 0;
+            addItem();
+            
+            calculateTotals();
+            showToast('Form cleared', 'success');
+        }
+
+        // Show preview
+        function showPreview() {
+            const data = getFormData();
+            if (!validateForm(data)) return;
+
+            document.getElementById('invoicePreviewContent').innerHTML = generatePreviewHTML(data);
+            document.getElementById('previewModal').classList.add('active');
+        }
+
+        // Close preview
+        function closePreview() {
+            document.getElementById('previewModal').classList.remove('active');
+        }
+
+        // Generate preview HTML
+        function generatePreviewHTML(data) {
+            let subtotal = 0;
+            const itemsRows = data.items.map(item => {
+                const total = item.quantity * item.price;
+                subtotal += total;
+                return `
+                    <tr>
+                        <td>${item.description}</td>
+                        <td>${item.quantity}</td>
+                        <td>$${item.price.toFixed(2)}</td>
+                        <td>$${total.toFixed(2)}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            const tax = subtotal * (data.taxRate / 100);
+            const grandTotal = subtotal + tax;
+
+            return `
+                <div class="invoice-preview">
+                    <div class="preview-header">
+                        <div class="preview-logo">
+                            <h2>INVOICE</h2>
+                            <p>#${data.invoiceNumber}</p>
+                        </div>
+                        <div class="preview-meta">
+                            <p><strong>Date:</strong> ${formatDate(data.invoiceDate)}</p>
+                            <p><strong>Due:</strong> ${formatDate(data.dueDate)}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="preview-parties">
+                        <div class="party-block">
+                            <h4>From</h4>
+                            <p class="name">${data.businessName || 'Your Business'}</p>
+                            <p>${data.businessEmail || ''}</p>
+                            <p>${data.businessPhone || ''}</p>
+                            <p>${data.businessAddress || ''}</p>
+                        </div>
+                        <div class="party-block">
+                            <h4>Bill To</h4>
+                            <p class="name">${data.clientName || 'Client'}</p>
+                            <p>${data.clientAddress || ''}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="preview-table-wrap">
+                        <table class="preview-table">
+                            <thead>
+                                <tr>
+                                    <th>Description</th>
+                                    <th>Quantity</th>
+                                    <th>Unit Price</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>${itemsRows}</tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="preview-footer">
+                        <div class="preview-notes">
+                            <h4>Notes</h4>
+                            <p>${data.notes || 'Thank you for your business!'}</p>
+                        </div>
+                        <div class="preview-totals">
+                            <div class="total-row">
+                                <span>Subtotal</span>
+                                <span>$${subtotal.toFixed(2)}</span>
+                            </div>
+                            <div class="total-row">
+                                <span>Tax (${data.taxRate}%)</span>
+                                <span>$${tax.toFixed(2)}</span>
+                            </div>
+                            <div class="total-row grand">
+                                <span>Total Due</span>
+                                <span>$${grandTotal.toFixed(2)}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Format date
+        function formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            return new Date(dateStr).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        // Print invoice
+        function printInvoice() {
+            const data = getFormData();
+            if (!validateForm(data)) return;
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Invoice ${data.invoiceNumber}</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+                    <style>
+                        * { margin: 0; padding: 0; box-sizing: border-box; }
+                        body { font-family: 'Inter', sans-serif; padding: 40px; background: #f5f5f5; }
+                        .invoice { max-width: 850px; margin: 0 auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+                        .header { background: linear-gradient(135deg, #1e1b4b, #312e81); color: white; padding: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+                        .header h1 { font-family: 'Space Grotesk', sans-serif; font-size: 32px; margin-bottom: 8px; }
+                        .parties { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; padding: 35px 40px; background: #f8fafc; }
+                        .party h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin-bottom: 12px; }
+                        .party .name { font-weight: 700; font-size: 18px; margin-bottom: 6px; }
+                        .party p { font-size: 14px; color: #475569; line-height: 1.6; }
+                        table { width: 100%; border-collapse: collapse; }
+                        th { background: #1e1b4b; color: white; padding: 16px 20px; text-align: left; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+                        td { padding: 16px 20px; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+                        tbody tr:nth-child(even) { background: #f8fafc; }
+                        .footer { padding: 35px 40px; display: grid; grid-template-columns: 1fr auto; gap: 40px; }
+                        .totals { min-width: 280px; }
+                        .totals .row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #cbd5e1; }
+                        .totals .row.grand { font-size: 22px; font-weight: 700; color: #1e1b4b; border-top: 3px solid #1e1b4b; border-bottom: none; padding-top: 14px; margin-top: 8px; }
+                        @media print { body { padding: 0; background: white; } .invoice { box-shadow: none; } }
+                    </style>
+                </head>
+                <body>${generatePreviewHTML(data)}</body>
+                </html>
+            `);
+            printWindow.document.close();
+            setTimeout(() => printWindow.print(), 500);
+        }
+
+        // Load saved invoices
+        function loadSavedInvoices() {
+            const invoices = JSON.parse(localStorage.getItem('invoices_pro') || '[]');
+            const grid = document.getElementById('invoicesGrid');
+            const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+            const statusFilter = document.getElementById('statusFilter')?.value || 'all';
+
+            let filtered = invoices.filter(inv => {
+                const matchesSearch = inv.clientName.toLowerCase().includes(searchTerm) ||
+                                     inv.invoiceNumber.toLowerCase().includes(searchTerm);
+                const matchesStatus = statusFilter === 'all' || inv.status === statusFilter;
+                return matchesSearch && matchesStatus;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <div class="empty-icon">📭</div>
+                        <h3 class="empty-title">No Invoices Found</h3>
+                        <p class="empty-desc">${invoices.length === 0 ? 'Create your first professional invoice now!' : 'Try adjusting your search or filters.'}</p>
+                        ${invoices.length === 0 ? '<button class="btn btn-primary" onclick="switchTab(\'create\')">Create Invoice</button>' : ''}
+                    </div>
+                `;
+                updateStats(invoices);
+                return;
+            }
+
+            grid.innerHTML = filtered.map(inv => {
+                let sub = inv.items.reduce((sum, i) => sum + (i.quantity * i.price), 0);
+                const total = sub * (1 + (inv.taxRate || 0) / 100);
+
+                return `
+                    <div class="invoice-card">
+                        <div class="invoice-card-header">
+                            <div>
+                                <div class="invoice-id">#${inv.invoiceNumber}</div>
+                                <div class="invoice-date">${formatDate(inv.invoiceDate)}</div>
+                            </div>
+                            <span class="invoice-status status-${inv.status || 'pending'}">${inv.status || 'pending'}</span>
+                        </div>
+                        <div class="invoice-card-body">
+                            <div class="client-info">
+                                <div class="client-name">👤 ${inv.clientName}</div>
+                                <div class="client-detail">📧 ${inv.businessEmail}</div>
+                                <div class="client-detail">📦 ${inv.items.length} items</div>
+                            </div>
+                            <div class="amount-display">$${total.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+                            <div class="invoice-actions">
+                                <button class="btn btn-success btn-sm" onclick="viewInvoice('${inv.id}')">👁️ View</button>
+                                <button class="btn btn-primary btn-sm" onclick="editInvoice('${inv.id}')">✏️ Edit</button>
+                                <button class="btn btn-warning btn-sm" onclick="updateStatus('${inv.id}')">🔄 Status</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteInvoice('${inv.id}')">🗑️ Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            updateStats(invoices);
+        }
+
+        // Filter invoices
+        function filterInvoices() {
+            loadSavedInvoices();
+        }
+
+        // Update stats
+        function updateStats(invoices) {
+            const total = invoices.length;
+            const revenue = invoices.reduce((sum, inv) => {
+                const sub = inv.items.reduce((s, i) => s + (i.quantity * i.price), 0);
+                return sum + sub * (1 + (inv.taxRate || 0) / 100);
+            }, 0);
+            const avg = total > 0 ? revenue / total : 0;
+
+            const now = new Date();
+            const thisMonth = invoices.filter(inv => {
+                const d = new Date(inv.createdAt);
+                return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+            }).length;
+
+            animateValue('totalInvoices', total);
+            animateValue('totalSales', `$${Math.round(revenue).toLocaleString()}`);
+            animateValue('avgAmount', `$${Math.round(avg).toLocaleString()}`);
+            animateValue('monthInvoices', thisMonth);
+        }
+
+        // Animate number change
+        function animateValue(elementId, newValue) {
+            const el = document.getElementById(elementId);
+            if (el) el.textContent = newValue;
+        }
+
+        // View invoice
+        function viewInvoice(id) {
+            const invoices = JSON.parse(localStorage.getItem('invoices_pro') || '[]');
+            const inv = invoices.find(i => i.id === id);
+            if (inv) {
+                document.getElementById('invoicePreviewContent').innerHTML = generatePreviewHTML(inv);
+                document.getElementById('previewModal').classList.add('active');
+            }
+        }
+
+        // Edit invoice
+        function editInvoice(id) {
+            const invoices = JSON.parse(localStorage.getItem('invoices_pro') || '[]');
+            const inv = invoices.find(i => i.id === id);
+            if (!inv) return;
+
+            // Fill form
+            document.getElementById('businessName').value = inv.businessName || '';
+            document.getElementById('businessEmail').value = inv.businessEmail || '';
+            document.getElementById('businessPhone').value = inv.businessPhone || '';
+            document.getElementById('businessAddress').value = inv.businessAddress || '';
+            document.getElementById('clientName').value = inv.clientName || '';
+            document.getElementById('clientAddress').value = inv.clientAddress || '';
+            document.getElementById('invoiceNumber').value = inv.invoiceNumber || '';
+            document.getElementById('invoiceDate').value = inv.invoiceDate || '';
+            document.getElementById('dueDate').value = inv.dueDate || '';
+            document.getElementById('taxRate').value = inv.taxRate || 0;
+            document.getElementById('notes').value = inv.notes || '';
+
+            // Reset items
+            const tbody = document.getElementById('itemsBody');
+            tbody.innerHTML = '';
+            items = [];
+            itemIdCounter = 0;
+
+            inv.items.forEach(item => {
+                addItem();
+                const lastRow = tbody.lastElementChild;
+                lastRow.querySelector('.item-desc').value = item.description;
+                lastRow.querySelector('.item-qty').value = item.quantity;
+                lastRow.querySelector('.item-price').value = item.price;
+            });
+
+            calculateTotals();
+            deleteInvoice(id, false);
+            switchTab('create');
+            showToast('Invoice loaded for editing', 'success');
+        }
+
+        // Update status
+        function updateStatus(id) {
+            const invoices = JSON.parse(localStorage.getItem('invoices_pro') || '[]');
+            const idx = invoices.findIndex(i => i.id === id);
+            if (idx === -1) return;
+
+            const statuses = ['pending', 'paid', 'overdue'];
+            const currentIdx = statuses.indexOf(invoices[idx].status || 'pending');
+            invoices[idx].status = statuses[(currentIdx + 1) % statuses.length];
+
+            localStorage.setItem('invoices_pro', JSON.stringify(invoices));
+            loadSavedInvoices();
+            showToast(`Status updated to: ${invoices[idx].status}`, 'success');
+        }
+
+        // Delete invoice
+        function deleteInvoice(id, showMessage = true) {
+            if (!confirm('Are you sure you want to delete this invoice?')) return;
+
+            let invoices = JSON.parse(localStorage.getItem('invoices_pro') || '[]');
+            invoices = invoices.filter(i => i.id !== id);
+            localStorage.setItem('invoices_pro', JSON.stringify(invoices));
+
+            loadSavedInvoices();
+            if (showMessage) showToast('Invoice deleted', 'success');
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+
+            const icons = { success: '✅', error: '❌', warning: '⚠️' };
+
+            toast.innerHTML = `
+                <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
+                <span class="toast-message">${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'toastSlideIn 0.3s ease-out reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // Keyboard shortcuts
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closePreview();
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    saveInvoice();
+                }
+                if (e.ctrlKey && e.key === 'p') {
+                    e.preventDefault();
+                    printInvoice();
+                }
+            });
+        }
+
+        // Close modal on outside click
+        document.getElementById('previewModal').addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-overlay')) closePreview();
+        });
+    </script>
+</body>
+</html>
